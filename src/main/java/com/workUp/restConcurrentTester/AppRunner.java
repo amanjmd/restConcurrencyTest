@@ -1,10 +1,15 @@
 package com.workUp.restConcurrentTester;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.Callable;
 
 /**
@@ -13,17 +18,42 @@ import java.util.concurrent.Callable;
  */
 public class AppRunner 
 {
+	List<TestObject> getTest;
+	List<TestObject> putTests;
+	List<TestObject> postTests;
 	String baseUrl;
     public static void main( String[] args )
     {
-    	String input = "{\r\n" + 
-				"        \"ISBN\":12345,\r\n" + 
-				"        \"title\":\"title1\",\r\n" + 
-				"        \"author\":\"author1\",\r\n" + 
-				"        \"price\":100.00\r\n" + 
-				"    } ";
+    	AppRunner appRunner = new AppRunner();
+    	appRunner.loadTestAcses();
     }
     
+    
+    void loadTestAcses(){
+    	InputStream inputStream;
+    	Properties prop = new Properties();
+		String propFileName = "testInputs.properties";
+
+		inputStream = getClass().getClassLoader().getResourceAsStream(propFileName);
+
+		if (inputStream != null) {
+			try {
+				prop.load(inputStream);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			try {
+				throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+		String user = prop.getProperty("restConcurrencyTester.baseUrl");
+	System.out.println(user);
+
+    }
     class PostPutThread implements Callable<String>{
 
     	String requestBody,resourcePath,method;
